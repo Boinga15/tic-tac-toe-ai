@@ -1,3 +1,5 @@
+use rand::Rng;
+
 // Layers
 pub struct Layer {
     pub weights: Vec<Vec<f64>>,
@@ -20,6 +22,18 @@ impl Layer {
         }
 
         final_values
+    }
+
+    pub fn mutate(&mut self, mutation_rate: f64) {
+        let mut rng = rand::thread_rng();
+
+        for i in 0..self.weights.len() {
+            for j in 0..self.weights[i].len() {
+                self.weights[i][j] += rng.gen_range((-1.0 * mutation_rate)..mutation_rate);
+            }
+
+            self.biases[i] += rng.gen_range((-1.0 * mutation_rate)..mutation_rate);
+        }
     }
 }
 
@@ -71,5 +85,11 @@ impl Agent {
         }
 
         current_inputs
+    }
+
+    pub fn mutate(&mut self, mutation_rate: f64) {
+        for layer in self.layers.iter_mut() {
+            layer.mutate(mutation_rate);
+        }
     }
 }
