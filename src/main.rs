@@ -1,37 +1,20 @@
-use crate::{genetic_algorithm::{agent::{Agent, Sigmoid}, factory::generate_agent}, tic_tac_toe::game::Board};
+use crate::genetic_algorithm::{agent::Sigmoid, trainer::Trainer};
 
 pub mod genetic_algorithm;
 pub mod tic_tac_toe;
 
 fn main() {
-    let mut board: Board = Board {
-        board: [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ]
+    let mut trainer = Trainer {
+        agents: vec![], // Agent, Fitness
+        agent_count: 0,
+        current_generation: 0
     };
 
-    let mut test_agent: Agent = generate_agent(9, 9, 5, 10, Box::new(Sigmoid {}), 5.0);
+    trainer.create_initial_generation(20, 9, 9, 50, 50, || Box::new(Sigmoid {}), 3.0);
 
-    let mut result: Vec<f64> = test_agent.compute(vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, -1.0, 0.0]);
-    println!("{result:?}");
-
-    board.probability_input(result, false, 1);
-
-    test_agent.mutate(2.0);
-    result = test_agent.compute(vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, -1.0, 0.0]);
-    println!("{result:?}");
-
-    board.probability_input(result, false, -1);
-
-    let board_state = board.get_board_state();
-
-    println!("Board:");
-    for row in board.board {
-        println!("{row:?}");
+    for epoch in 1..=10000 {
+        println!("Epoch #{epoch}:");
+        trainer.fit_generation(5);
+        trainer.mutate_generation(5, 5, 2.0, 9, 9, 5, 5, || Box::new(Sigmoid {}), 3.0);
     }
-
-    
-    println!("\n{board_state}");
 }

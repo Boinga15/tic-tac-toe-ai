@@ -1,6 +1,7 @@
 use rand::Rng;
 
 // Layers
+#[derive(Clone)]
 pub struct Layer {
     pub weights: Vec<Vec<f64>>,
     pub biases: Vec<f64>
@@ -39,11 +40,19 @@ impl Layer {
 
 
 // Activation Functions
-pub trait ActivationFunction {
+
+pub trait ActivationFunctionClone {
+    fn clone_box(&self) -> Box<dyn ActivationFunction>;
+}
+
+pub trait ActivationFunction: ActivationFunctionClone {
     fn calculate(&self, value: f64) -> f64;
 }
 
+#[derive(Clone)]
 pub struct Sigmoid {}
+
+#[derive(Clone)]
 pub struct ReLU {}
 
 impl ActivationFunction for Sigmoid {
@@ -52,21 +61,39 @@ impl ActivationFunction for Sigmoid {
     }
 }
 
+impl ActivationFunctionClone for Sigmoid {
+    fn clone_box(&self) -> Box<dyn ActivationFunction> {
+        Box::new(self.clone())
+    }
+}
+
 impl ActivationFunction for ReLU {
     fn calculate(&self, value: f64) -> f64 {
-        if value >= 0.0 {
-            return value;
-        }
+        value.max(0.0)
+    }
+}
 
-        return 0.0;
+impl ActivationFunctionClone for ReLU {
+    fn clone_box(&self) -> Box<dyn ActivationFunction> {
+        Box::new(self.clone())
     }
 }
 
 
+impl Clone for Box<dyn ActivationFunction> {
+    fn clone(&self) -> Box<dyn ActivationFunction> {
+        self.clone_box()
+    }
+}
+
+
+#[derive(Clone)]
 pub struct Agent {
     pub layers: Vec<Layer>,
     pub activation_function: Box<dyn ActivationFunction>
 }
+
+
 
 impl Agent {
     pub fn compute(&self, values: Vec<f64>) -> Vec<f64> {
