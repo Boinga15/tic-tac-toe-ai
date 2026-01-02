@@ -93,3 +93,8 @@ impl Board {
         return true;
     }
 }
+
+
+struct Game {
+    
+}

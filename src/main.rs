@@ -1,20 +1,28 @@
-use crate::genetic_algorithm::{agent::Sigmoid, trainer::Trainer};
-
 pub mod genetic_algorithm;
+pub mod train;
 pub mod tic_tac_toe;
 
-fn main() {
-    let mut trainer = Trainer {
-        agents: vec![], // Agent, Fitness
-        agent_count: 0,
-        current_generation: 0
+use eframe::egui;
+
+#[derive(Default)]
+struct MainApp {}
+
+impl eframe::App for MainApp {
+    fn update(&mut self, context: &egui::Context, frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(context, |ui| {
+            ui.heading("Hello World!");
+        });
+    }
+}
+
+fn main_loop() -> eframe::Result<()> {
+    let options = eframe::NativeOptions {
+        ..Default::default()
     };
 
-    trainer.create_initial_generation(20, 9, 9, 50, 50, || Box::new(Sigmoid {}), 3.0);
+    eframe::run_native("Tic Tac Toe", options, Box::new(|_cc| Ok(Box::new(MainApp::default()))))
+}
 
-    for epoch in 1..=10000 {
-        println!("Epoch #{epoch}:");
-        trainer.fit_generation(5);
-        trainer.mutate_generation(5, 5, 2.0, 9, 9, 5, 5, || Box::new(Sigmoid {}), 3.0);
-    }
+fn main() -> eframe::Result<()> {
+    main_loop()
 }
