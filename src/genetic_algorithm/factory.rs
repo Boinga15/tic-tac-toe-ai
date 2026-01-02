@@ -28,7 +28,7 @@ pub fn generate_agent(input_count: u32, output_count: u32, hidden_layer_count: u
     let mut layers: Vec<Layer> = vec![];
 
     for i in 0..(hidden_layer_count + 1) {
-        let mut previous_input: u32 = hidden_layer_count;
+        let mut previous_input: u32 = nodes_per_hidden_layer;
         let mut node_count: u32 = nodes_per_hidden_layer;
 
         if i == 0 {

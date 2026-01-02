@@ -4,6 +4,8 @@ pub mod tic_tac_toe;
 
 use eframe::egui;
 
+use crate::{genetic_algorithm::agent::{Agent, Sigmoid}, train::train::train};
+
 #[derive(Default)]
 struct MainApp {}
 
@@ -23,6 +25,15 @@ fn main_loop() -> eframe::Result<()> {
     eframe::run_native("Tic Tac Toe", options, Box::new(|_cc| Ok(Box::new(MainApp::default()))))
 }
 
-fn main() -> eframe::Result<()> {
-    main_loop()
+//  -> eframe::Result<()> (Add Pls)
+fn main() {
+    
+    let mut new_agent: Agent = Agent {
+        layers: vec![],
+        activation_function: Box::new(Sigmoid {})
+    };
+
+    new_agent.load("model.bin".to_string());
+    
+    //train();
 }

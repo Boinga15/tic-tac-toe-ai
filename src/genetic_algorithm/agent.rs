@@ -1,3 +1,5 @@
+use std::{fs::File, io::{ErrorKind, Read, Write}};
+
 use rand::Rng;
 
 // Layers
@@ -117,6 +119,91 @@ impl Agent {
     pub fn mutate(&mut self, mutation_rate: f64) {
         for layer in self.layers.iter_mut() {
             layer.mutate(mutation_rate);
+        }
+    }
+
+    pub fn save(&self, file_name: String) {
+        let mut file = File::create(file_name).expect("Error lodaing file.");
+
+        // Saving each layer.
+        for layer in self.layers.iter() {
+            let node_count: f64 = layer.biases.len() as f64;
+            let input_count: f64 = layer.weights[0].len() as f64;
+
+            file.write_all(&node_count.to_le_bytes()).expect("Error writing node count to file.");
+            file.write_all(&input_count.to_le_bytes()).expect("Error writing input count to file.");
+
+            // Writing weights.
+            for node in &layer.weights {
+                let weights_bytes: Vec<u8> = node.iter().flat_map(|x| x.to_le_bytes()).collect();
+                file.write_all(&weights_bytes).expect("Error writing weight to file.");
+            }
+
+            // Writing biases.
+            let bias_bytes: Vec<u8> = layer.biases.iter().flat_map(|x| x.to_le_bytes()).collect();
+            file.write_all(&bias_bytes).expect("Error writing weight to file.");
+        }
+    }
+
+    pub fn load(&mut self, target_file: String) {
+        let mut file = File::open(target_file).expect("Error encountered when trying to loda file.");
+        let mut values: Vec<f64> = Vec::new();
+        let mut buffer = [0u8; 8];
+
+        loop {
+            match file.read_exact(&mut buffer) {
+                Ok(()) => {
+                    let value = f64::from_le_bytes(buffer);
+                    values.push(value);
+                }
+
+                Err(e) if e.kind() == ErrorKind::UnexpectedEof => {
+                    break;
+                }
+
+                Err(e) => {
+                    print!("Error encountered when reading file: {e}");
+                    break;
+                },
+            }
+        }
+
+        for element in values.iter() {
+            print!("{element}\n");
+        }
+
+        let mut currentIndex: usize = 0;
+        self.layers = vec![];
+
+        while currentIndex < values.len() {
+            let node_count: usize = values[currentIndex] as usize;
+            let input_count: usize = values[currentIndex + 1] as usize;
+
+            currentIndex += 2;
+            let mut new_layer_weights: Vec<Vec<f64>> = vec![];
+
+            for i in 0..node_count {
+                let mut new_node: Vec<f64> = vec![];
+
+                for j in 0..input_count {
+                    new_node.push(values[currentIndex]);
+                    currentIndex += 1
+                }
+
+                new_layer_weights.push(new_node);
+            }
+            
+            let mut new_layer_biases: Vec<f64> = vec![];
+
+            for i in 0..node_count {
+                new_layer_biases.push(values[currentIndex]);
+                currentIndex += 1;
+            }
+
+            self.layers.push(Layer {
+                weights: new_layer_weights,
+                biases: new_layer_biases
+            });
         }
     }
 }
