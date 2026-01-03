@@ -168,26 +168,22 @@ impl Agent {
             }
         }
 
-        for element in values.iter() {
-            print!("{element}\n");
-        }
-
-        let mut currentIndex: usize = 0;
+        let mut current_index: usize = 0;
         self.layers = vec![];
 
-        while currentIndex < values.len() {
-            let node_count: usize = values[currentIndex] as usize;
-            let input_count: usize = values[currentIndex + 1] as usize;
+        while current_index < values.len() {
+            let node_count: usize = values[current_index] as usize;
+            let input_count: usize = values[current_index + 1] as usize;
 
-            currentIndex += 2;
+            current_index += 2;
             let mut new_layer_weights: Vec<Vec<f64>> = vec![];
 
-            for i in 0..node_count {
+            for _ in 0..node_count {
                 let mut new_node: Vec<f64> = vec![];
 
-                for j in 0..input_count {
-                    new_node.push(values[currentIndex]);
-                    currentIndex += 1
+                for _ in 0..input_count {
+                    new_node.push(values[current_index]);
+                    current_index += 1
                 }
 
                 new_layer_weights.push(new_node);
@@ -195,9 +191,9 @@ impl Agent {
             
             let mut new_layer_biases: Vec<f64> = vec![];
 
-            for i in 0..node_count {
-                new_layer_biases.push(values[currentIndex]);
-                currentIndex += 1;
+            for _ in 0..node_count {
+                new_layer_biases.push(values[current_index]);
+                current_index += 1;
             }
 
             self.layers.push(Layer {

@@ -1,5 +1,6 @@
 use rand::Rng;
 
+#[derive(Default)]
 pub struct Board {
     pub board: [[i32; 3]; 3]
 }
@@ -92,9 +93,4 @@ impl Board {
         
         return true;
     }
-}
-
-
-struct Game {
-    
 }
